@@ -1,41 +1,32 @@
-import torch
-from torch.autograd.functional import jacobian
-from functools import partial
+class ExtendedKalmanFilter:
+    def __init__(self, A, B, R, initial_state, initial_covariance):
+        self.A = A  # Drift coefficient
+        self.B = B  # Noise coefficient
+        self.R = R  # Measurement noise covariance
+        self.state = initial_state  # Initial state estimate (x_posterior)
+        self.covariance = initial_covariance  # Initial covariance (P_posterior)
 
-class EKF:
-    def __init__(self, motion_model, measurement_model, a, b, x0, p0, Q, R, m, n):
-        self.motion_model = motion_model
-        self.measurement_model = measurement_model
-        self.a = a
-        self.b = b
-        self.Q = torch.tensor([Q])
-        self.R = R
-        self.m = m
-        self.n = n
-        p0 = torch.tensor([p0])
-        self.initialize(x0, p0)
+    def predict(self, delta_t):
+        F = 1 - self.A * delta_t  # State transition Jacobian
+        Q = (self.B * delta_t) ** 2  # Process noise covariance
+        x_prior = F * self.state
+        P_prior = F * self.covariance * F + Q
+        return x_prior, P_prior
 
-    def initialize(self, x0, p0):
-        self.x_posterior = torch.tensor(x0, dtype=torch.float32)
-        self.p_posterior = torch.tensor(p0, dtype=torch.float32)
-
-    def diffential(self, eq, inputs):
-        return jacobian(eq, inputs)
-
-    def predictor(self):
-        self.x_prior = self.motion_model(self.x_posterior, Q=self.Q)
-        F = self.diffential(partial(self.motion_model, Q=self.Q), self.x_posterior)
-        self.p_prior = torch.tensor([F @ self.p_posterior]) @ F.T + self.Q
-
-    def corrector(self, z):
-        h_x_prior = self.measurement_model(self.x_prior, self.a, self.b, R=self.R)
-        y_innov = z - h_x_prior
-        H = self.diffential(partial(self.measurement_model, a=self.a, b=self.b, R=self.R), self.x_prior)
-        S = H @ self.p_prior.view(H.size()) @ H.T + self.R
-        KG = self.p_prior @ H.T @ torch.inverse(S.resize(self.m, self.m))
-        self.x_posterior = self.x_prior + KG @ y_innov
-        self.p_posterior = (torch.eye(self.n) - KG @ H) @ self.p_prior
-
-    def kalman_step(self, z):
-        self.predictor()
-        self.corrector(z)
+    def update(self, z, delta_t):
+        # Predict step
+        x_prior, P_prior = self.predict(delta_t)
+        H = 1.0  # Measurement Jacobian
+        # Innovation
+        y = z - H * x_prior
+        # Innovation covariance
+        S = H * P_prior * H + self.R
+        # Kalman gain
+        K = (P_prior * H) / S
+        # Update state
+        x_posterior = x_prior + K * y
+        # Update covariance
+        P_posterior = (1 - K * H) * P_prior
+        self.state = x_posterior
+        self.covariance = P_posterior
+        return x_posterior, P_posterior
