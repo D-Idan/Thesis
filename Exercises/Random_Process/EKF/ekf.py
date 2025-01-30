@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class ExtendedKalmanFilter:
     def __init__(self, A, B, R, initial_state, initial_covariance):
         self.A = A  # Drift coefficient
@@ -5,17 +8,24 @@ class ExtendedKalmanFilter:
         self.R = R  # Measurement noise covariance
         self.state = initial_state  # Initial state estimate (x_posterior)
         self.covariance = initial_covariance  # Initial covariance (P_posterior)
+        self.jacobian = lambda dt: 1 - self.A * dt
+        self.motion_model_step = lambda x, dt, n: (1 - self.A * dt) * x + self.B * dt * n
 
-    def predict(self, delta_t):
-        F = 1 - self.A * delta_t  # State transition Jacobian
-        Q = (self.B * delta_t) ** 2  # Process noise covariance
-        x_prior = F * self.state
-        P_prior = F * self.covariance * F + Q
-        return x_prior, P_prior
+    def predict(self, delta_t, n, norm_noise=None):
+        if norm_noise:
+            # n Should be already normalized
+            Q = (self.B * np.sqrt(delta_t)) ** 2  # Normalized process noise covariance
+        else:
+            Q = (self.B * delta_t) ** 2  # Process noise covariance
 
-    def update(self, z, delta_t):
+        F = self.jacobian(delta_t)  # State transition Jacobian
+        self.x_prior = self.motion_model_step(self.state, delta_t, n)
+        self.P_prior = F * self.covariance * F + Q
+        return self.x_prior, self.P_prior
+
+    def update(self, z):
         # Predict step
-        x_prior, P_prior = self.predict(delta_t)
+        x_prior, P_prior = self.x_prior, self.P_prior
         H = 1.0  # Measurement Jacobian
         # Innovation
         y = z - H * x_prior

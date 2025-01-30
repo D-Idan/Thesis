@@ -12,6 +12,7 @@ def main():
     R_values = [0.1, 1.0, 10.0]
     initial_state = 0.0
     initial_covariance = 10 #1e-5
+    norm_noise = False
     save_path = './results_plots'
 
     # Generate process noise array for the smallest delta_t
@@ -26,6 +27,8 @@ def main():
         # current_Nn = Nn[:n_steps]
         shift = int(delta_t / min_delta_t)
         current_Nn = Nn[::shift][:n_steps]
+        if norm_noise:
+            current_Nn = current_Nn / np.sqrt(delta_t)
 
         X_true = simulate_true_state(A, B, delta_t, T, current_Nn)
         time_inx = np.arange(0, T + delta_t, delta_t)
@@ -43,13 +46,13 @@ def main():
             p_posterior_array[0] = initial_covariance
 
             for i in range(1, len(X_true)):
-                x_prior, p_prior = ekf.predict(delta_t)
+                x_prior, p_prior = ekf.predict(delta_t, current_Nn[i-1], norm_noise=norm_noise)
                 x_prior_array[i] = x_prior
                 p_prior_array[i] = p_prior
 
                 if i-1 < len(measurements):
                     z = measurements[i-1]
-                    x_posterior, p_posterior = ekf.update(z, delta_t)
+                    x_posterior, p_posterior = ekf.update(z)
                 else:
                     x_posterior, p_posterior = x_prior, p_prior
 
