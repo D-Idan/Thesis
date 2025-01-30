@@ -12,7 +12,7 @@ def main():
     R_values = [0.1, 1.0, 10.0]
     initial_state = 0.0
     initial_covariance = 1 #1e-5
-    norm_noise = False
+    norm_noise = True
     use_rolling_average_measurements = True  # Set this flag to True to use rolling average fore measurement
     save_path = './results_plots'
 
