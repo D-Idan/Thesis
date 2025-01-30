@@ -13,6 +13,7 @@ def main():
     initial_state = 0.0
     initial_covariance = 1 #1e-5
     norm_noise = False
+    use_rolling_average_measurements = True  # Set this flag to True to use rolling average fore measurement
     save_path = './results_plots'
 
     # Generate process noise array for the smallest delta_t
@@ -35,6 +36,10 @@ def main():
 
         for R in R_values:
             measurements = generate_measurements(X_true, R)
+
+            if use_rolling_average_measurements:
+                measurements = np.array(
+                    [np.mean(measurements[i * shift:(i + 1) * shift]) for i in range(len(measurements) // shift)])
 
             ekf = ExtendedKalmanFilter(A=A, B=B, R=R, initial_state=initial_state, initial_covariance=initial_covariance)
             x_prior_array = np.zeros_like(X_true)
