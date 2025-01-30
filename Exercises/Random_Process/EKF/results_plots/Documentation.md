@@ -83,8 +83,6 @@ The main components of the implementation:
 ---
 ---
 ---
-
-
 ---
 
 # **Extended Kalman Filter (EKF) with Wiener Process Adjustment**
