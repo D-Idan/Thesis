@@ -11,7 +11,7 @@ def main():
     delta_t_values = [0.1, 0.5, 1.0]
     R_values = [0.1, 1.0, 10.0]
     initial_state = 0.0
-    initial_covariance = 10 #1e-5
+    initial_covariance = 1 #1e-5
     norm_noise = False
     save_path = './results_plots'
 
