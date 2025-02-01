@@ -14,9 +14,9 @@ class ExtendedKalmanFilter:
     def predict(self, delta_t, n, norm_noise=None):
         if norm_noise:
             # n Should be already normalized
-            Q = (self.B * np.sqrt(delta_t)) ** 2  # Normalized process noise covariance
+            Q = (self.B) ** 2 * np.sqrt(delta_t)  # Normalized process noise covariance
         else:
-            Q = (self.B * delta_t) ** 2  # Process noise covariance
+            Q = (self.B) ** 2  * delta_t  # Process noise covariance
 
         F = self.jacobian(delta_t)  # State transition Jacobian
         self.x_prior = self.motion_model_step(self.state, delta_t, n)

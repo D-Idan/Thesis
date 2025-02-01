@@ -8,11 +8,11 @@ def main():
     A = 3.0
     B = 1.0
     T = 10.0
-    delta_t_values = [0.1, 0.5, 1.0]
+    delta_t_values = [0.1, 0.05, 0.5]
     R_values = [0.1, 1.0, 10.0]
     initial_state = 1.0
-    initial_covariance = 1 #1e-5
-    norm_noise = False
+    initial_covariance = 1.0 #1e-5
+    norm_noise = True
     use_rolling_average_measurements = False  # Set this flag to True to use rolling average fore measurement
     save_path = './results_plots'
 
@@ -40,6 +40,10 @@ def main():
 
 
         for R in R_values:
+
+            # if norm_noise:
+            #     R = R / delta_t
+
             measurements = generate_measurements(X_true, R)
 
             if use_rolling_average_measurements:

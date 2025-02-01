@@ -128,6 +128,22 @@ def plot_single_result(time_inx, x_true, x_prior, x_posterior,
     ax3.legend()
     ax3.grid(True)
 
+    # # Determine combined y-limits
+    # y_min = min(ax2.get_ylim()[0], ax3.get_ylim()[0])
+    # y_max = max(ax2.get_ylim()[1], ax3.get_ylim()[1])
+    #
+    # # Set the same y-limits for both plots
+    # ax2.set_ylim(y_min, y_max)
+    # ax3.set_ylim(y_min, y_max)
+
+    # Determine combined y-limits
+    y_max = max(max(np.sqrt(p_posterior)), max(np.sqrt(p_prior)))
+
+    # Set the same y-limits for both plots
+    ax2.set_ylim(-y_max, y_max)
+    ax3.set_ylim(-y_max, y_max)
+
+
     if save_path:
         os.makedirs(save_path, exist_ok=True)
         fig.savefig(os.path.join(save_path, f'result_{delta_t}_{R}.png'))
