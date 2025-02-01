@@ -10,29 +10,34 @@ def main():
     T = 10.0
     delta_t_values = [0.1, 0.5, 1.0]
     R_values = [0.1, 1.0, 10.0]
-    initial_state = 0.0
+    initial_state = 1.0
     initial_covariance = 1 #1e-5
-    norm_noise = True
-    use_rolling_average_measurements = True  # Set this flag to True to use rolling average fore measurement
+    norm_noise = False
+    use_rolling_average_measurements = False  # Set this flag to True to use rolling average fore measurement
     save_path = './results_plots'
 
     # Generate process noise array for the smallest delta_t
     min_delta_t = min(delta_t_values)
     max_steps = int(T / min_delta_t)
-    np.random.seed(42)
-    Nn = np.random.randn(max_steps)
+    # np.random.seed(42)
+    Nn_true = np.random.randn(max_steps)
+    Nn_measurements = np.random.randn(max_steps)
 
     results = []
     for delta_t in delta_t_values:
         n_steps = int(T / delta_t)
-        # current_Nn = Nn[:n_steps]
         shift = int(delta_t / min_delta_t)
-        current_Nn = Nn[::shift][:n_steps]
+        current_Nn_true = Nn_true[::shift][:n_steps]
+        current_Nn_measurements = Nn_measurements[::shift][:n_steps]
         if norm_noise:
-            current_Nn = current_Nn / np.sqrt(delta_t)
+            current_Nn_true = current_Nn_true / np.sqrt(delta_t)
+            current_Nn_measurements = current_Nn_measurements / np.sqrt(delta_t)
 
-        X_true = simulate_true_state(A, B, delta_t, T, current_Nn)
+        X_true = simulate_true_state(A, B, delta_t, T, current_Nn_true)
         time_inx = np.arange(0, T + delta_t, delta_t)
+
+        current_Nn = current_Nn_measurements
+
 
         for R in R_values:
             measurements = generate_measurements(X_true, R)
