@@ -12,7 +12,7 @@ def main():
     R_values = [0.1, 1.0, 10.0]
     initial_state = 1.0
     initial_covariance = 1.0 #1e-5
-    norm_noise = True
+    norm_noise = False
     use_rolling_average_measurements = False  # Set this flag to True to use rolling average fore measurement
     save_path = './results_plots'
 
@@ -30,7 +30,7 @@ def main():
         current_Nn_true = Nn_true[::shift][:n_steps]
         current_Nn_measurements = Nn_measurements[::shift][:n_steps]
         if norm_noise:
-            current_Nn_true = current_Nn_true / np.sqrt(delta_t)
+            # current_Nn_true = current_Nn_true / np.sqrt(delta_t)
             current_Nn_measurements = current_Nn_measurements / np.sqrt(delta_t)
 
         X_true = simulate_true_state(A, B, delta_t, T, current_Nn_true)
@@ -41,8 +41,8 @@ def main():
 
         for R in R_values:
 
-            # if norm_noise:
-            #     R = R / delta_t
+            if norm_noise:
+                R = R / delta_t
 
             measurements = generate_measurements(X_true, R)
 
