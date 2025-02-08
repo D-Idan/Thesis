@@ -18,7 +18,9 @@ np.random.seed(42)
 A = 3.0  # Drift coefficient
 T = 10.0  # Total time in seconds
 # Choose a set of delta_t values; the smallest one is used for the full Wiener process.
-delta_t_values = [0.001, 0.005, 0.01, 0.05, 0.1]
+# delta_t_values = [0.001, 0.005, 0.01, 0.05, 0.1]
+delta_t_values = [0.0001, 0.1]
+delta_t_values = [0.4, 0.1, 4e-02, 4e-03]
 
 # Choose the smallest dt to generate the full Brownian motion path
 dt_min = min(delta_t_values)
@@ -36,15 +38,15 @@ time_full = np.linspace(0, T, num_steps_min + 1)
 
 def simulate_SDE(delta_t, A, T, dW_full, dt_min):
     """
-    Simulate the SDE using the Euler-Maruyama method.
+    Simulate the SDE using the Euler method.
 
     For delta_t == dt_min, we use the dW_full directly.
     For delta_t > dt_min, we sub-sample the dW_full array according to the ratio.
     """
     # Determine the ratio between the desired dt and the minimum dt
-    ratio = int(delta_t / dt_min)
-    print(f"delta_t: {delta_t}, dt_min: {dt_min}, ratio: {ratio}")
-    if delta_t < dt_min or delta_t % dt_min != 0:
+    k_ratio = int(delta_t / dt_min)
+    print(f"delta_t: {delta_t}, dt_min: {dt_min}, ratio: {k_ratio}")
+    if delta_t < dt_min or delta_t % dt_min > 10**-5:
         raise ValueError("delta_t must be an integer multiple of the minimum dt.")
 
     # Compute number of steps
@@ -52,7 +54,19 @@ def simulate_SDE(delta_t, A, T, dW_full, dt_min):
 
     # Sub-sample the Wiener increments:
     # For each time step of size delta_t, sum up the corresponding increments from dW_full.
-    dW = np.array([np.sum(dW_full[i * ratio:(i + 1) * ratio]) for i in range(num_steps)])
+    dW = np.array([np.sum(dW_full[i * k_ratio:(i + 1) * k_ratio]) for i in range(num_steps)])
+    ################################# Explanation START ###############################
+    # dW = np.zeros(num_steps)
+    #
+    # # Loop over each time step
+    # for i in range(num_steps):
+    #     # Calculate the start and end indices for the current sub-sample
+    #     start_idx = i * k_ratio
+    #     end_idx = (i + 1) * k_ratio
+    #
+    #     # Sum the increments from dW_full for the current sub-sample
+    #     dW[i] = np.sum(dW_full[start_idx:end_idx])
+    ################################# Explanation END #################################
 
     # Initialize state array
     X = np.zeros(num_steps + 1)
@@ -83,6 +97,7 @@ plt.ylabel('X(t)')
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
+plt.savefig("SDE_Trajectories.png")
 plt.show()
 
 
