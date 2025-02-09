@@ -132,7 +132,7 @@ def main():
                     'delta_t': delta_t,
                     'R': R,
                     'avg_window': avg_window,
-                    'time': averaged_time,
+                    'time_inx': averaged_time,
                     'X_true': averaged_X_true,
                     'x_prior': x_prior_array,
                     'x_posterior': x_posterior_array,
