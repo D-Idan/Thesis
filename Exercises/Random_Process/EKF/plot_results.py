@@ -146,6 +146,6 @@ def plot_single_result(time_inx, x_true, x_prior, x_posterior,
 
     if save_path:
         os.makedirs(save_path, exist_ok=True)
-        fig.savefig(os.path.join(save_path, f'result_{delta_t}_{R}.png'))
+        fig.savefig(os.path.join(save_path, f'result_{delta_t}_{R}_{extra_info}.png'))
     else:
         plt.show()

@@ -9,7 +9,8 @@ def main():
     B = 1.0
     T = 10.0
     delta_t_values = [0.1, 0.05, 0.01]  # simulation time steps
-    R_values = [0.1, 1.0]               # measurement noise variances
+    # R_values = [0.1, 1.0]               # measurement noise variances
+    R_values = [0.1]               # measurement noise variances
     initial_state = 1.0
     initial_covariance = 1.0
     norm_noise = True
