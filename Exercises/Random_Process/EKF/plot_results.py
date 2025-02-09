@@ -86,7 +86,7 @@ def plot_results(results, save_path=None):
 
 
 def plot_single_result(time_inx, x_true, x_prior, x_posterior,
-                       p_prior, p_posterior, A, B, delta_t, R, model_name="EKF", save_path=None):
+                       p_prior, p_posterior, A, B, delta_t, R, model_name="EKF", save_path=None, extra_info=''):
     """Plot a single result (one delta_t and R combination)."""
     fig = plt.figure(figsize=(12, 8), constrained_layout=True)
     gs = gridspec.GridSpec(2, 2, figure=fig)
@@ -96,7 +96,7 @@ def plot_single_result(time_inx, x_true, x_prior, x_posterior,
     ax.plot(time_inx, x_true, label='True State', color='red', linewidth=1.5)
     ax.plot(time_inx, x_prior, label='Prior Estimate', color='blue', linestyle='--', linewidth=1)
     ax.plot(time_inx, x_posterior, label='Posterior Estimate', color='green', linestyle='-.', linewidth=1)
-    ax.set_title(f'EKF Tracking (A={A}, B={B}, Δt={delta_t}, R={R})')
+    ax.set_title(f'{model_name} Tracking (A={A}, B={B}, Δt={delta_t}, R={R}), {extra_info}')
     ax.set_xlabel('Time [s]')
     ax.set_ylabel('Signal')
     ax.legend()
