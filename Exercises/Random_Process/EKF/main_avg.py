@@ -76,7 +76,7 @@ def main():
 
                 # Scale the measurement noise covariance to reflect the averaging.
                 # (Here we use a simple scaling: R_kf = R / avg_window.)
-                R_kf = R / avg_window
+                R_kf = R #/ avg_window
 
                 # Initialize the Extended Kalman Filter.
                 ekf = ExtendedKalmanFilter(
