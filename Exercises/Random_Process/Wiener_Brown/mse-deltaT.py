@@ -87,10 +87,13 @@ for dt in delta_t_values:
 # ---------------------------
 plt.figure(figsize=(8, 6))
 plt.loglog(delta_ts, mse_list, 'o-')
-plt.xlabel("Δt (log scale)")
-plt.ylabel("MSE (log scale)")
+# Set labels
+plt.xlabel(r'$\log(\Delta t)$')
+plt.ylabel(r'$\log(\mathrm{MSE})$')
+# plt.xlabel("Δt (log scale)")
+# plt.ylabel("MSE (log scale)")
 plt.title("Convergence of Euler–Forward for the SDE")
-plt.grid(True, which="both", ls="--", alpha=0.7)
+plt.grid(True, which="both", ls="--", alpha=0.7, label='MSE vs Δt')
 plt.tight_layout()
 plt.savefig("SDE_LogLog_MSE.png")
 plt.show()
