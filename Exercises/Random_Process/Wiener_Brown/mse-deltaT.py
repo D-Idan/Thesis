@@ -10,7 +10,7 @@ T = 100.0  # Total time in seconds
 
 # List of delta_t values (each must be an integer multiple of the smallest dt)
 delta_t_values = [0.4, 0.1, 0.04, 0.004]
-delta_t_values = np.arange(0.0001, 1, 0.0002)
+delta_t_values = np.arange(0.0001, 0.68, 0.0002)
 
 # The smallest delta_t will be used as the "true" simulation.
 dt_min = min(delta_t_values)
@@ -86,7 +86,7 @@ for dt in delta_t_values:
 # 3. Plot the log-log graph of delta_t vs. MSE.
 # ---------------------------
 plt.figure(figsize=(8, 6))
-plt.loglog(delta_ts, mse_list, 'o-')
+plt.loglog(delta_ts[1:], mse_list[1:], 'o-')
 # Set labels
 plt.xlabel(r'$\log(\Delta t)$')
 plt.ylabel(r'$\log(\mathrm{MSE})$')
