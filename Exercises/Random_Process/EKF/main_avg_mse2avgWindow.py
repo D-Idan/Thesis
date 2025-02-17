@@ -95,6 +95,7 @@ def run_simulation_fixed_dt(A, B, T, delta_t, R, avg_window,
             z = averaged_measurements[i - 1]
             x_post, _ = ekf.update(z)
         else:
+            raise ValueError("This should not happen.")
             x_post = x_prior
         x_posterior_array[i] = x_post
 
