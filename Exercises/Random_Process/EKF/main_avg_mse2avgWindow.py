@@ -78,7 +78,8 @@ def run_simulation_fixed_dt(A, B, T, delta_t, R, avg_window,
     for i in range(k):
         start_idx = i * avg_window
         end_idx = (i + 1) * avg_window
-        averaged_Nn.append(np.mean(current_Nn_measurements[start_idx:end_idx]))
+        # averaged_Nn.append(np.mean(current_Nn_measurements[start_idx:end_idx]))
+        averaged_Nn.append(current_Nn_measurements[end_idx-1])
     averaged_Nn = np.array(averaged_Nn)
 
     # The effective time step for prediction is the window length.
@@ -117,7 +118,7 @@ def main():
     B = 1.0
     T = 100.0
     # Use the lowest delta_t value (finest resolution)
-    delta_t = 0.03  # Adjust as needed; this is our "finest" dt for this study.
+    delta_t = 0.0001  # Adjust as needed; this is our "finest" dt for this study.
     R = 0.1
     initial_state = 1.0
     initial_covariance = 1.0
@@ -125,7 +126,7 @@ def main():
     norm_R = False
 
     # List of averaging window sizes to test.
-    avg_window_list = range(1, 100, 1)
+    avg_window_list = range(1, 10000, 20)
 
     # Pre-generate noise arrays at the finest resolution.
     max_steps = int(T / delta_t)
