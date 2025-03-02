@@ -14,8 +14,8 @@ class ExtendedKalmanFilter:
     def predict(self, delta_t, n, norm_noise=None):
         if norm_noise:
             # n Should be already normalized
-            Q = (self.B) ** 2 * np.sqrt(delta_t)  # Normalized process noise covariance
-            # Q = (self.B) ** 2  * delta_t # Because the noise is already normalized
+            # Q = (self.B) ** 2 * np.sqrt(delta_t)  # Normalized process noise covariance
+            Q = (self.B) ** 2 # Because the noise is already normalized
         else:
             Q = (self.B * delta_t) ** 2    # Process noise covariance
 

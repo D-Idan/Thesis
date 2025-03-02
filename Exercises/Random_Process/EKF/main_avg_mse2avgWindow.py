@@ -22,6 +22,9 @@ def run_simulation_fixed_dt(A, B, T, delta_t, R, avg_window,
     # Downsample the pre-generated noise arrays (here, delta_t is the finest resolution)
     current_Nn_true = Nn_true[:n_steps]
     current_Nn_measurements = Nn_measurements[:n_steps]
+    current_Nn_true = Nn_true
+    current_Nn_measurements = Nn_measurements
+
 
     if norm_noise:
         current_Nn_true = current_Nn_true / np.sqrt(delta_t)
@@ -32,7 +35,7 @@ def run_simulation_fixed_dt(A, B, T, delta_t, R, avg_window,
     time_full = np.arange(0, T + delta_t, delta_t)
 
     # Generate raw measurements
-    measurements_full = generate_measurements(X_true_full, R)
+    measurements_full = generate_measurements(X_true_full, R, delta_t=None)
 
     # Average the measurements (and true state) over non-overlapping windows.
     k = len(measurements_full) // avg_window
@@ -54,7 +57,7 @@ def run_simulation_fixed_dt(A, B, T, delta_t, R, avg_window,
     averaged_time = np.array(averaged_time)
 
     # Adjust the measurement noise covariance if desired.
-    R_kf = R if not norm_R else R / avg_window
+    R_kf = R if not norm_R else R / (avg_window * delta_t)
 
     # Initialize the EKF.
     ekf = ExtendedKalmanFilter(
@@ -117,20 +120,22 @@ def main():
     A = 3.0
     B = 1.0
     T = 100.0
+
     # Use the lowest delta_t value (finest resolution)
     delta_t = 0.0001  # Adjust as needed; this is our "finest" dt for this study.
+    transients = (T * 0.1) // delta_t   # Number of transient steps to skip for MSE computation.
     R = 0.1
     initial_state = 1.0
     initial_covariance = 1.0
     norm_noise = True
-    norm_R = False
+    norm_R = True
 
     # List of averaging window sizes to test.
-    avg_window_list = range(1, 10000, 20)
+    avg_window_list = range(1, 100, 1)
 
     # Pre-generate noise arrays at the finest resolution.
     max_steps = int(T / delta_t)
-    np.random.seed(42)
+    # np.random.seed(42)
     Nn_true = np.random.randn(max_steps)
     Nn_measurements = np.random.randn(max_steps)
 
@@ -160,6 +165,7 @@ def main():
         interp_true = np.interp(result['time'], baseline_time, baseline_true)
         mse_prior = np.mean((result['x_prior'] - interp_true) ** 2)
         mse_post = np.mean((result['x_posterior'] - interp_true) ** 2)
+
         mse_prior_list.append(mse_prior)
         mse_post_list.append(mse_post)
 
