@@ -119,7 +119,7 @@ def main():
     # --------------------------
     A = 3.0
     B = 1.0
-    T = 100.0
+    T = 5.0
 
     # Use the lowest delta_t value (finest resolution)
     delta_t = 0.0001  # Adjust as needed; this is our "finest" dt for this study.
@@ -131,7 +131,7 @@ def main():
     norm_R = True
 
     # List of averaging window sizes to test.
-    avg_window_list = range(1, 100, 1)
+    avg_window_list = range(1, 1000, 1)
 
     # Pre-generate noise arrays at the finest resolution.
     max_steps = int(T / delta_t)
