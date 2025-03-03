@@ -20,8 +20,8 @@ def run_simulation_fixed_dt(A, B, T, delta_t, R, avg_window,
     n_steps = int(T / delta_t)
 
     # Downsample the pre-generated noise arrays (here, delta_t is the finest resolution)
-    current_Nn_true = Nn_true[:n_steps]
-    current_Nn_measurements = Nn_measurements[:n_steps]
+    # current_Nn_true = Nn_true[:n_steps]
+    # current_Nn_measurements = Nn_measurements[:n_steps]
     current_Nn_true = Nn_true
     current_Nn_measurements = Nn_measurements
 
@@ -132,6 +132,7 @@ def main():
 
     # List of averaging window sizes to test.
     avg_window_list = range(1, 1000, 1)
+    avg_window_list = np.logspace(0, 3, num=100, dtype=int)
 
     # Pre-generate noise arrays at the finest resolution.
     max_steps = int(T / delta_t)
