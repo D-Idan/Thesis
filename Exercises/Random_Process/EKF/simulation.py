@@ -12,5 +12,5 @@ def generate_measurements(X_true, R, delta_t=None):
     n_steps = len(X_true) - 1
     measurements = X_true[1:] + np.random.randn(n_steps) * np.sqrt(R)
     if delta_t:
-        measurements = X_true[1:] + np.random.randn(n_steps) * np.sqrt(R) / np.sqrt(delta_t)
+        measurements = X_true[1:] + np.random.randn(n_steps) * np.sqrt(R / delta_t)
     return measurements
