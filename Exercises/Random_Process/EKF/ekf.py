@@ -6,18 +6,24 @@ class ExtendedKalmanFilter:
         self.A = A  # Drift coefficient
         self.B = B  # Noise coefficient
         self.R = R  # Measurement noise covariance
+        self.Q = 1  # Process noise covariance
         self.state = initial_state  # Initial state estimate (x_posterior)
         self.covariance = initial_covariance  # Initial covariance (P_posterior)
         self.jacobian = lambda dt: 1 - self.A * dt
         self.motion_model_step = lambda x, dt, n: (1 - self.A * dt) * x + self.B * dt * n
 
-    def predict(self, delta_t, n, norm_noise=None):
+    def predict(self, delta_t, n = None, norm_noise=None):
+        if n is None:
+            n = np.random.randn()
         if norm_noise:
-            # n Should be already normalized
             # Q = (self.B) ** 2 * np.sqrt(delta_t)  # Normalized process noise covariance
-            Q = (self.B) ** 2 # Because the noise is already normalized
+            # Q = (self.B) ** 2 * delta_t # Because the noise is already normalized
+            Q = (self.B * delta_t) ** 2
+            n = n / np.sqrt(delta_t)
         else:
             Q = (self.B * delta_t) ** 2    # Process noise covariance
+
+        self.Q = Q
 
         F = self.jacobian(delta_t)  # State transition Jacobian
         self.x_prior = self.motion_model_step(self.state, delta_t, n)
