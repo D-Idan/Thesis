@@ -137,7 +137,7 @@ def plot_single_result(time_inx, x_true, x_prior, x_posterior,
     # ax3.set_ylim(y_min, y_max)
 
     # Determine combined y-limits
-    y_max = max(max(np.sqrt(p_posterior)), max(np.sqrt(p_prior)))
+    y_max = max(max(np.sqrt(p_posterior)), max(np.sqrt(p_prior)), max(abs(prior_error)), max(abs(posterior_error)))
 
     # Set the same y-limits for both plots
     ax2.set_ylim(-y_max, y_max)
