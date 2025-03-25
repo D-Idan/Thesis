@@ -1,9 +1,7 @@
-import numpy as np
-import matplotlib.pyplot as plt
+# Implementation Documentation
 
-seed = 17
-np.random.seed(seed)
-
+## EKF Class
+```python
 class ExtendedKalmanFilter:
     def __init__(self, A, B, R, initial_state, initial_covariance):
         self.A = A  # Drift coefficient
@@ -39,25 +37,25 @@ class ExtendedKalmanFilter:
         self.state = x_posterior
         self.covariance = P_posterior
         return x_posterior, P_posterior
+```
 
-
+## Simulation Setup
+```python
 A = 3.0
 B = 1.0
-T = 5.0
+T = 10.0
 
 # Use the lowest delta_t value (finest resolution)
 PRF = 2000
 delta_t = 1/PRF  # Adjust as needed; this is our "finest" dt for this study.
-R = 0.00001
+R = 0.1
 initial_state = 1.0
 initial_covariance = 1.0
-transient = 0.2
 norm_noise = True
 norm_R = True
-one_prediction_step = True
 
 # List of averaging window sizes to test.
-avg_window_list = np.unique(np.logspace(0.1, 2.0, num=100, dtype=int))
+avg_window_list = np.unique(np.logspace(0.1, 3.2, num=100, dtype=int))
 
 # Pre-generate noise arrays at the finest resolution.
 max_steps = int(T / delta_t)
@@ -83,7 +81,6 @@ mse_prior_list = []
 mse_post_list = []
 p_prior_list = []
 p_post_list = []
-results_all = {}
 
 for avg_window in avg_window_list:
 
@@ -109,10 +106,7 @@ for avg_window in avg_window_list:
 
     for kalman_idx in range(max_steps // avg_window):
         # Predict step
-        if one_prediction_step:
-            x_prior, p_prior = ekf.predict(avg_window * delta_t)
-        else:
-            x_prior, p_prior = [ekf.predict(delta_t) for _ in range(avg_window)][-1]
+        x_prior, p_prior = [ekf.predict(delta_t) for _ in range(avg_window+1)][-1]
 
         # Update step
         idx_start = kalman_idx * avg_window
@@ -127,31 +121,28 @@ for avg_window in avg_window_list:
         time_inx.append(idx_end)
 
     # Save the results for this averaging window size.
-    transient_steps = int(transient * len(p_prior_array))
     result = {
-        'time': np.array(time_inx)[transient_steps:],
-        'x_prior': np.array(x_prior_array)[transient_steps:],
-        'x_posterior': np.array(x_posterior_array)[transient_steps:],
-        'p_prior': np.array(p_prior_array)[transient_steps:],
-        'p_posterior': np.array(p_post_array)[transient_steps:],
-        'X_true': X_true[time_inx][transient_steps:],
+        'time': np.array(time_inx),
+        'x_prior': np.array(x_prior_array),
+        'x_posterior': np.array(x_posterior_array),
+        'p_prior': np.array(p_prior_array),
+        'p_posterior': np.array(p_post_array),
+        'X_true': X_true[time_inx]
     }
-    results_all[avg_window] = result
 
     mse_prior_list.append(np.mean((result['X_true'] - result['x_prior']) ** 2))
     mse_post_list.append(np.mean((result['X_true'] - result['x_posterior']) ** 2))
-    p_prior_list.append(np.mean(result['p_prior'][-1]))
-    p_post_list.append(np.mean(result['p_posterior'][-1]))
+    p_prior_list.append(np.mean(result['p_prior']))
+    p_post_list.append(np.mean(result['p_posterior']))
+```
 
 
-
-
+## Plot Results
+```python
 # --------------------------
 # Plot the MSE for Prior and Posterior as a function of the averaging window.
 # Both curves are shown on the same figure.
 # --------------------------
-import matplotlib.ticker as ticker
-
 plt.figure(figsize=(8, 6))
 
 plt.plot(avg_window_list, mse_prior_list, marker='o', linestyle='-',
@@ -169,28 +160,8 @@ plt.ylabel('MSE')
 plt.title('MSE vs. Averaging Window (Δt = {:.4f}, PRF = {})'.format(delta_t, PRF))
 plt.xscale('log')
 plt.yscale('log')
-# # Get the current y-axis major ticks (which correspond to log grid lines)
-# ax = plt.gca()
-# ax.yaxis.set_major_locator(ticker.LogLocator(base=10.0, subs=None))  # Ensures major ticks are at log scale
-#
-# # Get the tick locations
-# y_ticks = ax.yaxis.get_majorticklocs()
-#
-# # Set the y-axis ticks explicitly
-# plt.yticks(y_ticks, labels=[f"{ytick:.1e}" for ytick in y_ticks])
 plt.legend()
 plt.grid(True, which='both', ls='--', alpha=0.7)
 plt.tight_layout()
 plt.show()
-
-from plot_results import plot_single_result
-results_number = 1
-if results_number not in results_all: # get the nearest key value
-    results_number = min(results_all.keys(), key=lambda x:abs(x-results_number))
-
-ran = results_all[results_number] # Results average number
-plot_single_result(ran['time']/PRF, ran['X_true'], ran['x_prior'], ran['x_posterior'], ran['p_prior'], ran['p_posterior'], A, B, delta_t, R, save_path=None, extra_info=f'Sliding Window = {results_number}')
-
-# ---------------------------
-# print mean square on true state
-print(f"Mean square on true state: {np.mean((ran['X_true']) ** 2)}")
+```

@@ -246,3 +246,47 @@ The covariance propagation (Equation 6) and measurement update (Equations 7-11) 
 - **\( K_k \)**: Kalman gain (Equation (9)).
 - **\( z_k \)**: Measurement at time step \( k \) (Equation (2) and (13)).
 - **\( N \)**: Averaging window size (number of \(\Delta t\) steps, denoted by `avg_window`).
+
+
+## 8. Implementation Notes: Noise Covariance Tuning and Performance Observations
+
+### 8.1. Initial Challenges with Measurement Noise Covariance
+During initial implementation with \( R = 0.1 \), we observed:
+1. **Poor State Tracking**: The posterior estimates exhibited significant lag and failed to follow the true state trajectory
+2. **Covariance Mismatch**: The estimated error covariance \( P_{\text{posterior}} \) (~0.2) and MSE (0.25-0.35) at \( N=1 \).
+3. **Theoretical-Experimental Discrepancy**: The empirical MSE at \( N=1 \) was actually higher than the theoretical steady-state variance:
+   \[
+   \sigma_X^2 = \frac{B^2}{2A} = \frac{1^2}{2 \times 3} = \frac{1}{6} \approx 0.1667 \tag{14}
+   \]
+
+### 8.2. Diagnosis and Solution
+Analysis revealed two key issues:
+1. **Overestimated Measurement Noise**: The initial \( R = 0.1 \) were too high for the system dynamics, leading to:
+   - Excessive measurement noise weighting
+   - Poor state tracking and high MSE
+2. **Filter Conservatism**: The large \( R \) value caused the Kalman gain to underweight measurements, leading to:
+   - Reduced state update responsiveness
+   - Artificially low \( P \) estimates
+
+After reducing to \( R = 0.0001 \):
+- **Posterior MSE Improved** to \( 0.0025 \) at \( N=1 \).
+- **Covariance Estimates Became Consistent**: \( P_{\text{posterior}} \) become close to measured MSE.
+- **Tracking Performance Enhanced**: Posterior estimates closely followed true state dynamics
+
+### 8.3. Key Implications
+1. **Covariance Tuning Critical**: Proper \( R \) calibration is essential for both estimation accuracy and covariance consistency.
+2. **Measurement Reliability**: The ratio should be \( R/\sigma_X^2 << 1 \)   to ensure measurements inform state updates.
+3. **Validation Requirement**: Theoretical MSE bounds should be verified against empirical results during filter tuning.
+
+## 9. Results
+### MSE vs Averaging Window Size
+The Mean Squared Error (MSE) was computed for varying averaging window sizes \( N \) to assess filter performance. The results are summarized in the image below:
+![MSE vs Averaging Window Size](MSE_vs_N.png)
+
+Kalman Filter tracking results for different averaging window sizes are shown below:
+- **\( N = 1 \)**: Single-step prediction strategy
+
+![Kalman Filter Tracking Results 1](KF_tracking1.png)
+
+- **\( N = 100 \)**: Multi-step prediction strategy
+![Kalman Filter Tracking Results 100](KF_tracking100.png)
